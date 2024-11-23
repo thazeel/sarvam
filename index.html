@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-based Visual Assistance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            text-align: left;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Visual Assistance</h1>
+        <p>Upload an image for analysis</p>
+        <input type="file" id="imageInput" accept="image/*" />
+        <br />
+        <button onclick="uploadImage()">Analyze Image</button>
+        <div id="results">
+            <h3>Analysis Results:</h3>
+            <ul id="resultList"></ul>
+        </div>
+    </div>
+
+    <script>
+        function uploadImage() {
+            const imageInput = document.getElementById('imageInput');
+            const file = imageInput.files[0];
+            if (!file) {
+                alert("Please select an image to upload.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => displayResults(data))
+            .catch(error => console.error('Error:', error));
+        }
+
+        function displayResults(data) {
+            const resultList = document.getElementById('resultList');
+            resultList.innerHTML = ''; // Clear previous results
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+
+            for (const [label, prob] of Object.entries(data)) {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${label}: ${prob}`;
+                resultList.appendChild(listItem);
+            }
+        }
+    </script>
+</body>
+</html>
